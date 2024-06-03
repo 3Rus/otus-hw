@@ -1,0 +1,38 @@
+#cloud-config
+datasource:
+ Ec2:
+  strict_id: false
+ssh_pwauth: no
+packages:
+ - git
+# - unzip
+ - curl
+ - net-tools
+# - npm
+ - docker.io
+ - docker-compose
+ - mc
+ - cron
+users:
+- name: yc-user
+  sudo: ALL=(ALL) NOPASSWD:ALL
+  shell: /bin/bash
+  ssh_authorized_keys:
+  - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCoh5XF+AdcL/00aOUuw+MPLjRHY/kRmaBTQjEVp+7AolOeHW2ubP1caWpdkTSo/b213kc7JPrYpOv84jqBdCHntoGGSQz68iY02nUneu1vahsCtzFO8iEK2Ez95fjPDnlCwFqmnNoki7fdFX0rABY1628fKY5ldoA5Lyv7SEBKpjhpzJSZb7MAEjy0G12bJWHiFqGpJ5wvC88AbaVvaoQP27lvWzuYJEniH9wOltsKZFkHlElWFJbmH4PBqOEgJ/yX/wvcwpPB5iFnh2ZiO7A/FUwSltZB8ctkbsvZX7P8zQm25lGxC0I8aeoctjReqCPgWhFwl9wXcw1Y4aFe23tKT9k8xKISCjEq4q/iHCLuH2+pw+2tRSfkrhHEa1LwXyEEfRdE1vN3spqUivNXgLJEpm14LQs4ivwcAQ/YGEn9y5iPnwKcJXca/xpjQKkYif2XthiS4kklHl5JqPLrAbPG/jDHwm6q+ZSf3CDF4dNZJHCU+QX2hQtP4vxNKOrDF0k= adm1n@ubuntu
+#cloud-config
+runcmd:
+ - timedatectl set-timezone Europe/Moscow
+ - [ wget, "https://github.com/docker/awesome-compose/archive/refs/heads/master.zip", -P, /opt/ ]
+ - cd /opt/
+ - unzip master.zip
+ - rm master.zip
+ - cp -r awesome-compose-master/react-express-mysql/ .
+ - rm -rf awesome-compose-master/
+ - chown -R yc-user:yc-user /opt/awesome-compose-master
+ - cd react-express-mysql/
+# - sleep 2m
+ - docker-compose up -d --build
+ - docker run -d -p 8888:8000  331github/mytempapp
+ - chmod ugo+x /code/bakdb.sh
+# - docker network create --driver bridge otus-network
+# - docker run -d --name mytempapp --network otus-network -p 8888:8000 -v otus-volume:/code/db 331github/mytempapp
